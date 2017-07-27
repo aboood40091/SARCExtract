@@ -216,6 +216,7 @@ def sarc_extract(data, mode):
         print("No names found. Trying to guess the file names...")
 
     bntx_count = 0
+    bnsh_count = 0
     flan_count = 0
     flyt_count = 0
     flim_count = 0
@@ -235,8 +236,12 @@ def sarc_extract(data, mode):
 
         if no_names:
             if filedata[0:4] == b"BNTX":
-                filename = name + "/" + "bntx" + str(flim_count) + ".bntx"
+                filename = name + "/" + "bntx" + str(bntx_count) + ".bntx"
                 bntx_count += 1
+
+            elif filedata[0:4] == b"BNSH":
+                filename = name + "/" + "bnsh" + str(bnsh_count) + ".bnsh"
+                bnsh_count += 1
 
             elif filedata[0:4] == b"FLAN":
                 filename = name + "/" + "bflan" + str(flan_count) + ".bflan"
