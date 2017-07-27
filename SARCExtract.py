@@ -104,7 +104,13 @@ def yaz0_decompress(data):
         code <<= 1
         bits -= 1
 
-    out = "".join(out)
+    i = 0
+    for byte in out:
+        if type(byte) != bytes:
+            out[i] = byte.to_bytes(1, "big")
+        i += 1
+
+    out = b''.join(out)
 
     return out
 
