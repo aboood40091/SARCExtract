@@ -97,7 +97,7 @@ def yaz0_decompress(data):
             else:
                 read += 2
 
-            for x in xrange(read):
+            for x in range(read):
                 out.append(out[dstpos + x])
                 out_len += 1
 
