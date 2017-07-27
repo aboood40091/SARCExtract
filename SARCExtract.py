@@ -192,7 +192,7 @@ def sarc_extract(data, mode):
         no_names = 1
 
         for x in range(node_count):
-            strings.append("bfbin" + str(x) + ".bfbin")
+            strings.append("file" + str(x))
 
     else:
         for x in range(node_count):
@@ -226,7 +226,7 @@ def sarc_extract(data, mode):
     file_count = 0
 
     for x in range(node_count):
-        filename = os.path.join(name, str(strings[x])[2:-1])
+        filename = os.path.join(name, strings[x])
 
         if not os.path.exists(os.path.dirname(filename)):
             os.makedirs(os.path.dirname(filename))
