@@ -43,7 +43,7 @@ def get_str(data):
         string += char
         if i == len(data): break  # Prevent it from looping forever
 
-        char = byte[i:i + 1]
+        char = data[i:i + 1]
         i += 1
 
     return (string.decode('utf-8'))
