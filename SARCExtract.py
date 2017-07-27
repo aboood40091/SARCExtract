@@ -41,7 +41,7 @@ def get_str(data):
 
     while char != b'\x00':
         string += char
-        if i == len(byte): break  # Prevent it from looping forever
+        if i == len(data): break  # Prevent it from looping forever
 
         char = byte[i:i + 1]
         i += 1
