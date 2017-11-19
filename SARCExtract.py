@@ -1,10 +1,12 @@
 #
-# Made by NWPlayer123 and Stella/AboodXD, no rights reserved, feel free to do whatever
+# Made by NWPlayer123 and MasterVermilli0n/AboodXD, no rights reserved, feel free to do whatever
 #
 
 import os
 import sys
 import struct
+
+from libyaz0 import decompress as Yaz0Dec
 
 
 def uint8(data, pos, bom):
@@ -19,100 +21,13 @@ def uint32(data, pos, bom):
     return struct.unpack(bom + "I", data[pos:pos + 4])[0]
 
 
-def check(length, size, percent, count):
-    length = float(length)
-    size = float(size)
+def bytes_to_string(data, offset=0, charWidth=1, encoding='utf-8'):
+    # Thanks RoadrunnerWMC
+    end = data.find(b'\0' * charWidth, offset)
+    if end == -1:
+        return data[offset:].decode(encoding)
 
-    test = round(length / size, 2)  # Percent complete as decimal
-    test *= 100  # Percent
-
-    if test % count == 0:
-        if percent != test:  # New Number
-            print(str(test)[:-2] + "%")
-            percent = test
-
-    return percent
-
-
-def get_str(data):
-    string = b''
-    char = data[:1]
-    i = 1
-
-    while char != b'\x00':
-        string += char
-        if i == len(data): break  # Prevent it from looping forever
-
-        char = data[i:i + 1]
-        i += 1
-
-    return (string.decode('utf-8'))
-
-
-def yaz0_decompress(data):
-    # Thanks to thakis for yaz0dec, which I modeled this on after
-    # I cleaned it up in v0.2, what with bit-manipulation and looping
-    # Thanks to Kinnay for suggestions to make this even faster
-    print("Decompressing Yaz0....")
-
-    pos = 16
-    size = uint32(data, 4, ">")  # Uncompressed filesize
-    out = []
-    out_len = 0
-
-    dstpos = 0
-    percent = 0
-    bits = 0
-    code = 0
-
-    if len(data) >= 5242880:
-        count = 5  # 5MB is gonna take a while
-    else:
-        count = 10
-
-    while len(out) < size:  # Read Entire File
-        percent = check(out_len, size, percent, count)
-
-        if bits == 0:
-            code = uint8(data, pos, ">")
-            pos += 1
-            bits = 8
-
-        if (code & 0x80) != 0:  # Copy 1 Byte
-            out.append(data[pos])
-            pos += 1
-            out_len += 1
-
-        else:
-            rle = uint16(data, pos, ">")
-            pos += 2
-
-            dist = rle & 0xFFF
-            dstpos = len(out) - (dist + 1)
-            read = (rle >> 12)
-
-            if (rle >> 12) == 0:
-                read = (data[pos]) + 0x12
-                pos += 1
-            else:
-                read += 2
-
-            for x in range(read):
-                out.append(out[dstpos + x])
-                out_len += 1
-
-        code <<= 1
-        bits -= 1
-
-    i = 0
-    for byte in out:
-        if type(byte) != bytes:
-            out[i] = byte.to_bytes(1, "big")
-        i += 1
-
-    out = b''.join(out)
-
-    return out
+    return data[offset:end].decode(encoding)
 
 
 def sarc_extract(data, mode):
@@ -121,7 +36,7 @@ def sarc_extract(data, mode):
 
     name, ext = os.path.splitext(sys.argv[1])
 
-    if mode == 1:  # Don"t need to check again with normal SARC
+    if mode == 1:  # Don't need to check again with normal SARC
         magic1 = data[0:4]
 
         if magic1 != b"SARC":
@@ -187,7 +102,7 @@ def sarc_extract(data, mode):
     print("Reading file names....")
     no_names = 0
 
-    if get_str(data[pos:]) == "":
+    if bytes_to_string(data[pos:]) == "":
         print("No file names found....")
         no_names = 1
 
@@ -196,7 +111,7 @@ def sarc_extract(data, mode):
 
     else:
         for x in range(node_count):
-            string = get_str(data[pos:])
+            string = bytes_to_string(data[pos:])
             pos += len(string)
 
             while (data[pos]) == 0:
@@ -281,7 +196,6 @@ def sarc_extract(data, mode):
 
 def main():
     print("SARCExtract by NWPlayer123 and Stella/AboodXD")
-    print("Thanks to Kinnay and thakis")
 
     if len(sys.argv) != 2:
         print("Usage: SARCExtract archive.szs")
@@ -293,7 +207,7 @@ def main():
     magic = data[0:4]
 
     if magic == b"Yaz0":
-        decompressed = yaz0_decompress(data)
+        decompressed = Yaz0Dec(data)
         sarc_extract(decompressed, 1)
 
     elif magic == b"SARC":
