@@ -195,7 +195,8 @@ def sarc_extract(data, mode):
 
 
 def main():
-    print("SARCExtract by NWPlayer123 and Stella/AboodXD")
+    print("SARCExtract v0.5 by MasterVermilli0n/AboodXD")
+    print("Originally by NWPlayer123")
 
     if len(sys.argv) != 2:
         print("Usage: SARCExtract archive.szs")
